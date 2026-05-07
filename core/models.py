@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import models
 from django.utils import timezone
 
@@ -91,6 +92,7 @@ class Batch(models.Model):
 
 class Student(models.Model):
     STATUS_CHOICES = [
+        ('pending', 'Pending'),
         ('active', 'Active'),
         ('inactive', 'Inactive'),
         ('graduated', 'Graduated'),
@@ -112,7 +114,8 @@ class Student(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
     address = models.TextField(blank=True)
     photo = models.ImageField(upload_to='students/', blank=True, null=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    password_hash = models.CharField(max_length=128, blank=True)
     enrolled_on = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -130,6 +133,14 @@ class Student(models.Model):
     @property
     def active_enrollments(self):
         return self.enrollments.filter(status='active')
+
+    def set_password(self, raw_password):
+        self.password_hash = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        if not self.password_hash:
+            return False
+        return check_password(raw_password, self.password_hash)
 
 
 class Enrollment(models.Model):

@@ -1,0 +1,11 @@
+{% extends 'public/base.html' %}
+{% block title %}Enrollment Request | EdTech CRM{% endblock %}
+{% block meta_description %}Request enrollment in an upcoming or ongoing batch from your learner account.{% endblock %}
+{% block content %}
+<h1>Enrollment Request</h1>
+<form method="post" class="stack-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Submit Request</button>
+</form>
+{% endblock %}

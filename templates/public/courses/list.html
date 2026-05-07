@@ -1,0 +1,21 @@
+{% extends 'public/base.html' %}
+{% block title %}Course Catalog | EdTech CRM{% endblock %}
+{% block meta_description %}Browse active EdTech CRM courses with instructor, duration, and fee details.{% endblock %}
+{% block content %}
+<h1>Course Catalog</h1>
+<form method="get" class="inline-form">
+  <input type="search" name="q" value="{{ q }}" placeholder="Search courses">
+  <button type="submit">Search</button>
+</form>
+<div class="grid">
+  {% for course in courses %}
+    <article class="card">
+      <h2><a href="{% url 'public:course_detail' course.slug %}">{{ course.title }}</a></h2>
+      <p>{{ course.duration_weeks }} weeks · ₹{{ course.fee }}</p>
+      <p>Instructor: {{ course.instructor.full_name|default:'TBA' }}</p>
+    </article>
+  {% empty %}
+    <p>No courses found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

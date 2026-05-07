@@ -1,0 +1,27 @@
+{% extends 'public/base.html' %}
+{% block title %}EdTech CRM | Learn New Skills{% endblock %}
+{% block meta_description %}Discover top industry courses, register as a learner, and request enrollment online.{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Build your career with practical online programs</h1>
+  <p>Browse active courses and submit enrollment requests in minutes.</p>
+  <div class="actions">
+    <a class="btn" href="{% url 'public:course_catalog' %}">Explore Courses</a>
+    <a class="btn btn-secondary" href="{% url 'public:learner_register' %}">Get Started</a>
+  </div>
+</section>
+<section>
+  <h2>Featured Courses</h2>
+  <div class="grid">
+    {% for course in featured_courses %}
+      <article class="card">
+        <h3><a href="{% url 'public:course_detail' course.slug %}">{{ course.title }}</a></h3>
+        <p>{{ course.duration_weeks }} weeks · ₹{{ course.fee }}</p>
+        <p>Instructor: {{ course.instructor.full_name|default:'TBA' }}</p>
+      </article>
+    {% empty %}
+      <p>No active courses are available right now.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
