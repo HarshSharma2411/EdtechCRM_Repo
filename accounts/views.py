@@ -1,42 +1,52 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class StaffLoginView(TokenObtainPairView):
-    """JWT login — staff only (is_staff must be True)."""
+    """JWT login restricted to staff users."""
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 200:
-            from django.contrib.auth import authenticate
-            user = authenticate(
-                username=request.data.get('username'),
-                password=request.data.get('password'),
+        user = authenticate(
+            request=request,
+            username=request.data.get('username'),
+            password=request.data.get('password'),
+        )
+        if user and not user.is_staff:
+            return Response(
+                {'detail': 'Staff access only.'},
+                status=status.HTTP_403_FORBIDDEN,
             )
-            if user and not user.is_staff:
-                return Response(
-                    {'detail': 'Staff access only.'},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
-        return response
+        return super().post(request, *args, **kwargs)
 
 
 class StaffLogoutView(APIView):
-    """Blacklist the refresh token on logout."""
+    """Blacklist a valid refresh token during logout."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return Response(
+                {'detail': 'Refresh token is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
-            refresh_token = request.data.get('refresh')
             token = RefreshToken(refresh_token)
             token.blacklist()
-        except Exception:
-            pass
+        except TokenError:
+            return Response(
+                {'detail': 'Invalid refresh token.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         return Response({'detail': 'Logged out.'}, status=status.HTTP_200_OK)
 
 
