@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}EdTech CRM{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/crm.css" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-icon">🎓</span>
+    <span class="brand-name">EdTech CRM</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="{% url 'core:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">⊞</span> Dashboard
+    </a></li>
+    <li class="nav-section">RECORDS</li>
+    <li><a href="{% url 'core:student_list' %}" class="{% if 'student' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="nav-icon">👤</span> Students
+    </a></li>
+    <li><a href="{% url 'core:instructor_list' %}" class="{% if 'instructor' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="nav-icon">🧑‍🏫</span> Instructors
+    </a></li>
+    <li><a href="{% url 'core:course_list' %}" class="{% if 'course' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="nav-icon">📚</span> Courses
+    </a></li>
+    <li><a href="{% url 'core:batch_list' %}" class="{% if 'batch' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="nav-icon">🗓</span> Batches
+    </a></li>
+    <li><a href="{% url 'core:enrollment_list' %}" class="{% if 'enrollment' in request.resolver_match.url_name %}active{% endif %}">
+      <span class="nav-icon">📋</span> Enrollments
+    </a></li>
+    <li class="nav-section">SYSTEM</li>
+    <li><a href="/admin/">
+      <span class="nav-icon">⚙</span> Django Admin
+    </a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+    <a href="{% url 'core:logout' %}" class="logout-btn">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+<div class="main-content {% if not user.is_authenticated %}full-width{% endif %}">
+  {% if user.is_authenticated %}
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+    </div>
+    <div class="topbar-right">
+      {% block topbar_actions %}{% endblock %}
+    </div>
+  </header>
+  {% endif %}
+
+  {% if messages %}
+  <div class="messages">
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}">
+      {{ msg }}
+      <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="page-body">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="/static/js/crm.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% extends 'crm/base.html' %}
+{% block title %}{{ batch.name }} — EdTech CRM{% endblock %}
+{% block page_title %}{{ batch.name }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'core:batch_edit' batch.pk %}" class="btn btn-secondary">Edit</a>
+  <a href="{% url 'core:batch_delete' batch.pk %}" class="btn btn-danger">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="detail-grid">
+  <div class="card">
+    <div class="card-header"><h2>Batch Details</h2></div>
+    <div class="card-body">
+      <dl class="detail-list">
+        <dt>Name</dt><dd>{{ batch.name }}</dd>
+        <dt>Course</dt><dd><a href="{% url 'core:course_detail' batch.course.pk %}">{{ batch.course.title }}</a></dd>
+        <dt>Instructor</dt>
+        <dd>{% if batch.instructor %}<a href="{% url 'core:instructor_detail' batch.instructor.pk %}">{{ batch.instructor.full_name }}</a>{% else %}—{% endif %}</dd>
+        <dt>Start Date</dt><dd>{{ batch.start_date|date:"d M Y" }}</dd>
+        <dt>End Date</dt><dd>{{ batch.end_date|date:"d M Y" }}</dd>
+        <dt>Seats</dt><dd>{{ batch.enrolled_count }} enrolled / {{ batch.max_seats }} total ({{ batch.seats_available }} available)</dd>
+        <dt>Status</dt><dd><span class="badge badge-{{ batch.status }}">{{ batch.get_status_display }}</span></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card card-full">
+    <div class="card-header">
+      <h2>Enrolled Students ({{ enrollments|length }})</h2>
+      <a href="{% url 'core:enrollment_add' %}" class="btn btn-sm btn-primary">+ Enroll Student</a>
+    </div>
+    <div class="card-body">
+      {% if enrollments %}
+      <table class="table">
+        <thead><tr><th>Student</th><th>Email</th><th>Enrolled On</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for e in enrollments %}
+          <tr>
+            <td><a href="{% url 'core:student_detail' e.student.pk %}">{{ e.student.full_name }}</a></td>
+            <td>{{ e.student.email }}</td>
+            <td>{{ e.enrolled_on|date:"d M Y" }}</td>
+            <td><span class="badge badge-{{ e.status }}">{{ e.get_status_display }}</span></td>
+            <td class="actions">
+              <a href="{% url 'core:enrollment_edit' e.pk %}" class="btn btn-xs btn-secondary">Edit</a>
+              <a href="{% url 'core:enrollment_delete' e.pk %}" class="btn btn-xs btn-danger">Remove</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty-state">No students enrolled yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

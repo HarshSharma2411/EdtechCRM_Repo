@@ -1,0 +1,60 @@
+{% extends 'crm/base.html' %}
+{% block title %}{{ student.full_name }} — EdTech CRM{% endblock %}
+{% block page_title %}{{ student.full_name }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'core:student_edit' student.pk %}" class="btn btn-secondary">Edit</a>
+  <a href="{% url 'core:student_delete' student.pk %}" class="btn btn-danger">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="detail-grid">
+  <div class="card">
+    <div class="card-header"><h2>Personal Information</h2></div>
+    <div class="card-body">
+      {% if student.photo %}
+      <img src="{{ student.photo.url }}" alt="{{ student.full_name }}" class="detail-photo" />
+      {% endif %}
+      <dl class="detail-list">
+        <dt>Full Name</dt><dd>{{ student.full_name }}</dd>
+        <dt>Email</dt><dd>{{ student.email }}</dd>
+        <dt>Phone</dt><dd>{{ student.phone|default:"—" }}</dd>
+        <dt>Date of Birth</dt><dd>{{ student.date_of_birth|date:"d M Y"|default:"—" }}</dd>
+        <dt>Gender</dt><dd>{{ student.get_gender_display|default:"—" }}</dd>
+        <dt>Address</dt><dd>{{ student.address|default:"—"|linebreaksbr }}</dd>
+        <dt>Status</dt>
+        <dd><span class="badge badge-{{ student.status }}">{{ student.get_status_display }}</span></dd>
+        <dt>Enrolled On</dt><dd>{{ student.enrolled_on|date:"d M Y" }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Enrollments</h2>
+      <a href="{% url 'core:enrollment_add' %}" class="btn btn-sm btn-primary">+ Enroll</a>
+    </div>
+    <div class="card-body">
+      {% if enrollments %}
+      <table class="table">
+        <thead>
+          <tr><th>Course</th><th>Batch</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for e in enrollments %}
+          <tr>
+            <td>{{ e.batch.course.title }}</td>
+            <td><a href="{% url 'core:batch_detail' e.batch.pk %}">{{ e.batch.name }}</a></td>
+            <td><span class="badge badge-{{ e.status }}">{{ e.get_status_display }}</span></td>
+            <td>{{ e.enrolled_on|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty-state">Not enrolled in any batch yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

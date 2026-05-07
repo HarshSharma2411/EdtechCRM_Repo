@@ -1,0 +1,140 @@
+{% extends 'crm/base.html' %}
+
+{% block title %}Dashboard — EdTech CRM{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card stat-blue">
+    <div class="stat-icon">👤</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_students }}</div>
+      <div class="stat-label">Active Students</div>
+    </div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-icon">🧑‍🏫</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_instructors }}</div>
+      <div class="stat-label">Active Instructors</div>
+    </div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-icon">📚</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_courses }}</div>
+      <div class="stat-label">Active Courses</div>
+    </div>
+  </div>
+  <div class="stat-card stat-orange">
+    <div class="stat-icon">🗓</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total_batches }}</div>
+      <div class="stat-label">Ongoing Batches</div>
+    </div>
+  </div>
+  {% if pending_enrollments > 0 %}
+  <div class="stat-card stat-red">
+    <div class="stat-icon">⏳</div>
+    <div class="stat-info">
+      <div class="stat-value">{{ pending_enrollments }}</div>
+      <div class="stat-label">Pending Enrollments</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="dashboard-grid">
+  <!-- Recent Students -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Recent Students</h2>
+      <a href="{% url 'core:student_add' %}" class="btn btn-sm btn-primary">+ Add Student</a>
+    </div>
+    <div class="card-body">
+      {% if recent_students %}
+      <table class="table">
+        <thead>
+          <tr><th>Name</th><th>Email</th><th>Status</th><th>Joined</th></tr>
+        </thead>
+        <tbody>
+          {% for s in recent_students %}
+          <tr>
+            <td><a href="{% url 'core:student_detail' s.pk %}">{{ s.full_name }}</a></td>
+            <td>{{ s.email }}</td>
+            <td><span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span></td>
+            <td>{{ s.enrolled_on|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{% url 'core:student_list' %}" class="view-all">View all students →</a>
+      {% else %}
+      <p class="empty-state">No students yet. <a href="{% url 'core:student_add' %}">Add the first one.</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Ongoing Batches -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Ongoing Batches</h2>
+      <a href="{% url 'core:batch_add' %}" class="btn btn-sm btn-primary">+ Add Batch</a>
+    </div>
+    <div class="card-body">
+      {% if ongoing_batches %}
+      <table class="table">
+        <thead>
+          <tr><th>Batch</th><th>Course</th><th>Instructor</th><th>Seats</th></tr>
+        </thead>
+        <tbody>
+          {% for b in ongoing_batches %}
+          <tr>
+            <td><a href="{% url 'core:batch_detail' b.pk %}">{{ b.name }}</a></td>
+            <td>{{ b.course.title }}</td>
+            <td>{{ b.instructor.full_name|default:"—" }}</td>
+            <td>{{ b.enrolled_count }}/{{ b.max_seats }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{% url 'core:batch_list' %}" class="view-all">View all batches →</a>
+      {% else %}
+      <p class="empty-state">No ongoing batches. <a href="{% url 'core:batch_add' %}">Create one.</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Enrollments -->
+  <div class="card card-full">
+    <div class="card-header">
+      <h2>Recent Enrollments</h2>
+      <a href="{% url 'core:enrollment_add' %}" class="btn btn-sm btn-primary">+ Add Enrollment</a>
+    </div>
+    <div class="card-body">
+      {% if recent_enrollments %}
+      <table class="table">
+        <thead>
+          <tr><th>Student</th><th>Course</th><th>Batch</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for e in recent_enrollments %}
+          <tr>
+            <td><a href="{% url 'core:student_detail' e.student.pk %}">{{ e.student.full_name }}</a></td>
+            <td>{{ e.batch.course.title }}</td>
+            <td>{{ e.batch.name }}</td>
+            <td><span class="badge badge-{{ e.status }}">{{ e.get_status_display }}</span></td>
+            <td>{{ e.enrolled_on|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{% url 'core:enrollment_list' %}" class="view-all">View all enrollments →</a>
+      {% else %}
+      <p class="empty-state">No enrollments yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

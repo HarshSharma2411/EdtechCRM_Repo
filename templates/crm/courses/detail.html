@@ -1,0 +1,56 @@
+{% extends 'crm/base.html' %}
+{% block title %}{{ course.title }} — EdTech CRM{% endblock %}
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'core:course_edit' course.pk %}" class="btn btn-secondary">Edit</a>
+  <a href="{% url 'core:course_delete' course.pk %}" class="btn btn-danger">Delete</a>
+{% endblock %}
+
+{% block content %}
+<div class="detail-grid">
+  <div class="card">
+    <div class="card-header"><h2>Course Details</h2></div>
+    <div class="card-body">
+      {% if course.thumbnail %}<img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="detail-photo" />{% endif %}
+      <dl class="detail-list">
+        <dt>Title</dt><dd>{{ course.title }}</dd>
+        <dt>Description</dt><dd>{{ course.description|default:"—"|linebreaksbr }}</dd>
+        <dt>Duration</dt><dd>{{ course.duration_weeks }} week{{ course.duration_weeks|pluralize }}</dd>
+        <dt>Fee</dt><dd>₹{{ course.fee }}</dd>
+        <dt>Instructor</dt>
+        <dd>{% if course.instructor %}<a href="{% url 'core:instructor_detail' course.instructor.pk %}">{{ course.instructor.full_name }}</a>{% else %}—{% endif %}</dd>
+        <dt>Status</dt><dd><span class="badge badge-{{ course.status }}">{{ course.get_status_display }}</span></dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card card-full">
+    <div class="card-header">
+      <h2>Batches ({{ batches|length }})</h2>
+      <a href="{% url 'core:batch_add' %}" class="btn btn-sm btn-primary">+ Add Batch</a>
+    </div>
+    <div class="card-body">
+      {% if batches %}
+      <table class="table">
+        <thead><tr><th>Batch</th><th>Instructor</th><th>Start</th><th>End</th><th>Enrolled</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for b in batches %}
+          <tr>
+            <td><a href="{% url 'core:batch_detail' b.pk %}">{{ b.name }}</a></td>
+            <td>{{ b.instructor.full_name|default:"—" }}</td>
+            <td>{{ b.start_date|date:"d M Y" }}</td>
+            <td>{{ b.end_date|date:"d M Y" }}</td>
+            <td>{{ b.enrolled }}/{{ b.max_seats }}</td>
+            <td><span class="badge badge-{{ b.status }}">{{ b.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty-state">No batches yet. <a href="{% url 'core:batch_add' %}">Create one.</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

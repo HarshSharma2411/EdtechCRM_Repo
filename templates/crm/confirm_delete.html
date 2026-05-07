@@ -1,0 +1,28 @@
+{% extends 'crm/base.html' %}
+{% block title %}Confirm Delete — EdTech CRM{% endblock %}
+{% block page_title %}Delete {{ object_type }}{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+  <div class="card-body">
+    <div class="confirm-delete">
+      <div class="confirm-icon">⚠️</div>
+      <h2>Are you sure?</h2>
+      <p>You are about to permanently delete the {{ object_type|lower }}:</p>
+      <p class="confirm-object-name"><strong>{{ object }}</strong></p>
+      <p class="confirm-warning">This action cannot be undone.</p>
+      <div class="form-actions confirm-actions">
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </form>
+        {% if object_type == 'Enrollment' %}
+          <a href="{% url cancel_url %}" class="btn btn-ghost">Cancel</a>
+        {% else %}
+          <a href="{% url cancel_url pk %}" class="btn btn-ghost">Cancel</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

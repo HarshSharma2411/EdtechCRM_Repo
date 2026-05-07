@@ -1,0 +1,54 @@
+{% extends 'crm/base.html' %}
+{% block title %}Instructors — EdTech CRM{% endblock %}
+{% block page_title %}Instructors{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'core:instructor_add' %}" class="btn btn-primary">+ Add Instructor</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <form method="get" class="filter-bar">
+      <input type="text" name="q" placeholder="Search by name or email…"
+             value="{{ q }}" class="search-input" />
+      <select name="active" class="filter-select">
+        <option value="">All</option>
+        <option value="1" {% if active == '1' %}selected{% endif %}>Active</option>
+        <option value="0" {% if active == '0' %}selected{% endif %}>Inactive</option>
+      </select>
+      <button type="submit" class="btn btn-secondary">Filter</button>
+      {% if q or active %}<a href="{% url 'core:instructor_list' %}" class="btn btn-ghost">Clear</a>{% endif %}
+    </form>
+
+    {% if instructors %}
+    <table class="table table-hover">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Active</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for i in instructors %}
+        <tr>
+          <td><a href="{% url 'core:instructor_detail' i.pk %}">{{ i.full_name }}</a></td>
+          <td>{{ i.email }}</td>
+          <td>{{ i.phone|default:"—" }}</td>
+          <td>{{ i.joined_on|date:"d M Y" }}</td>
+          <td>{% if i.is_active %}<span class="badge badge-active">Yes</span>{% else %}<span class="badge badge-inactive">No</span>{% endif %}</td>
+          <td class="actions">
+            <a href="{% url 'core:instructor_edit' i.pk %}" class="btn btn-xs btn-secondary">Edit</a>
+            <a href="{% url 'core:instructor_delete' i.pk %}" class="btn btn-xs btn-danger">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="result-count">{{ instructors|length }} instructor{{ instructors|length|pluralize }} found</p>
+    {% else %}
+    <div class="empty-state-large">
+      <p>No instructors found.</p>
+      {% if not q %}<a href="{% url 'core:instructor_add' %}" class="btn btn-primary">Add the first instructor</a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

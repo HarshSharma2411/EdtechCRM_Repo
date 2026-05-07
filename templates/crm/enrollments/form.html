@@ -1,0 +1,29 @@
+{% extends 'crm/base.html' %}
+{% block title %}{{ action }} Enrollment — EdTech CRM{% endblock %}
+{% block page_title %}{{ action }} Enrollment{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{% url 'core:enrollment_list' %}" class="btn btn-ghost">Cancel</a>
+{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="form-help">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+      </div>
+      {% endfor %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ action }} Enrollment</button>
+        <a href="{% url 'core:enrollment_list' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

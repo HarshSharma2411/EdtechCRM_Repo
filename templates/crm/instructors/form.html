@@ -1,0 +1,31 @@
+{% extends 'crm/base.html' %}
+{% block title %}{{ action }} Instructor — EdTech CRM{% endblock %}
+{% block page_title %}{{ action }} Instructor{% endblock %}
+
+{% block topbar_actions %}
+  {% if instructor %}<a href="{% url 'core:instructor_detail' instructor.pk %}" class="btn btn-ghost">Cancel</a>
+  {% else %}<a href="{% url 'core:instructor_list' %}" class="btn btn-ghost">Cancel</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card form-card">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="form-help">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<span class="form-error">{{ error }}</span>{% endfor %}
+      </div>
+      {% endfor %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ action }} Instructor</button>
+        {% if instructor %}<a href="{% url 'core:instructor_detail' instructor.pk %}" class="btn btn-ghost">Cancel</a>
+        {% else %}<a href="{% url 'core:instructor_list' %}" class="btn btn-ghost">Cancel</a>{% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
