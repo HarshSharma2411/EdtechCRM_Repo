@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.password_validation import validate_password
 from django.utils.text import slugify
 
 from .models import Batch, Course, Enrollment, Instructor, Student
@@ -117,3 +118,81 @@ class EnrollmentForm(forms.ModelForm):
             raise forms.ValidationError('No seats are available in the selected batch.')
 
         return cleaned_data
+
+
+class LearnerRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, min_length=8)
+    confirm_password = forms.CharField(widget=forms.PasswordInput, min_length=8)
+
+    class Meta:
+        model = Student
+        fields = [
+            'first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'gender', 'address',
+        ]
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'address': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if Student.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+        if password and confirm_password and password != confirm_password:
+            raise forms.ValidationError('Passwords do not match.')
+        if password:
+            validate_password(password)
+        return cleaned_data
+
+    def save(self, commit=True):
+        student = super().save(commit=False)
+        student.status = 'pending'
+        student.set_password(self.cleaned_data['password'])
+        if commit:
+            student.save()
+        return student
+
+
+class LearnerLoginForm(forms.Form):
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean_email(self):
+        return self.cleaned_data['email'].strip().lower()
+
+
+class LearnerEnrollmentRequestForm(forms.ModelForm):
+    class Meta:
+        model = Enrollment
+        fields = ['batch', 'notes']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.student = kwargs.pop('student')
+        super().__init__(*args, **kwargs)
+        self.fields['batch'].queryset = Batch.objects.select_related('course').filter(
+            course__status='active',
+            status__in=['upcoming', 'ongoing'],
+        )
+
+    def clean_batch(self):
+        batch = self.cleaned_data['batch']
+        if Enrollment.objects.filter(student=self.student, batch=batch).exists():
+            raise forms.ValidationError('You have already requested enrollment for this batch.')
+        return batch
+
+    def save(self, commit=True):
+        enrollment = super().save(commit=False)
+        enrollment.student = self.student
+        enrollment.status = 'pending'
+        if commit:
+            enrollment.save()
+        return enrollment

@@ -1,0 +1,11 @@
+{% extends 'public/base.html' %}
+{% block title %}Learner Login | EdTech CRM{% endblock %}
+{% block meta_description %}Securely log in to your EdTech CRM learner dashboard and track enrollment status.{% endblock %}
+{% block content %}
+<h1>Learner Login</h1>
+<form method="post" class="stack-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Login</button>
+</form>
+{% endblock %}

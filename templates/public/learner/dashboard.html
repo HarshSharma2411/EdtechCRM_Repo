@@ -1,0 +1,21 @@
+{% extends 'public/base.html' %}
+{% block title %}Learner Dashboard | EdTech CRM{% endblock %}
+{% block meta_description %}View your learner profile and track enrollment requests in one dashboard.{% endblock %}
+{% block content %}
+<h1>Welcome, {{ learner.full_name }}</h1>
+<p><strong>Email:</strong> {{ learner.email }}</p>
+<p><strong>Status:</strong> {{ learner.get_status_display }}</p>
+<a class="btn" href="{% url 'public:enrollment_request' %}">Request Enrollment</a>
+<h2>Your Enrollment Requests</h2>
+<div class="grid">
+  {% for enrollment in enrollments %}
+    <article class="card">
+      <h3>{{ enrollment.batch.course.title }} - {{ enrollment.batch.name }}</h3>
+      <p>Status: {{ enrollment.get_status_display }}</p>
+      <p>Requested on: {{ enrollment.created_at|date:'Y-m-d' }}</p>
+    </article>
+  {% empty %}
+    <p>No enrollment requests yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

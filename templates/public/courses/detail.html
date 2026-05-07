@@ -1,0 +1,30 @@
+{% extends 'public/base.html' %}
+{% block title %}{{ course.title }} | EdTech CRM{% endblock %}
+{% block meta_description %}View complete course details including instructor profile, schedule, and seat availability.{% endblock %}
+{% block content %}
+<h1>{{ course.title }}</h1>
+<p><strong>Duration:</strong> {{ course.duration_weeks }} weeks</p>
+<p><strong>Fee:</strong> ₹{{ course.fee }}</p>
+<p><strong>Description:</strong> {{ course.description|default:'Course description coming soon.' }}</p>
+<h2>Instructor Profile</h2>
+<p>{{ course.instructor.full_name|default:'To be announced' }}</p>
+<p>{{ course.instructor.bio|default:'Instructor profile coming soon.' }}</p>
+<h2>Batch Schedule & Seat Availability</h2>
+<div class="grid">
+  {% for batch in batches %}
+    <article class="card">
+      <h3>{{ batch.name }}</h3>
+      <p>{{ batch.start_date }} to {{ batch.end_date }}</p>
+      <p>Status: {{ batch.get_status_display }}</p>
+      <p>Seats Available: {{ batch.seats_available }}</p>
+    </article>
+  {% empty %}
+    <p>No batches available yet.</p>
+  {% endfor %}
+</div>
+{% if learner %}
+  <a class="btn" href="{% url 'public:enrollment_request' %}">Request Enrollment</a>
+{% else %}
+  <a class="btn" href="{% url 'public:learner_login' %}">Login to Request Enrollment</a>
+{% endif %}
+{% endblock %}
