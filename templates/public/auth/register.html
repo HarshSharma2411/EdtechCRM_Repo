@@ -1,0 +1,11 @@
+{% extends 'public/base.html' %}
+{% block title %}Learner Registration | EdTech CRM{% endblock %}
+{% block meta_description %}Create your learner account and submit your profile for approval.{% endblock %}
+{% block content %}
+<h1>Learner Registration</h1>
+<form method="post" class="stack-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Submit Registration</button>
+</form>
+{% endblock %}
